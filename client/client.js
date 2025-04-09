@@ -5,7 +5,12 @@
 const net = require('node:net');
 const readline = require('readline');
 
-const client = net.createConnection({ port: 4444, host: 'localhost' });
+const getServerIP = () => {
+    const args = process.argv.slice(2);
+    return args[0] || 'localhost';
+};
+
+const client = net.createConnection({ port: 4444, host: getServerIP() });
 
 const rl = readline.createInterface({
     input: process.stdin,

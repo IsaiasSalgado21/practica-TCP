@@ -39,6 +39,6 @@ server.on('connection', (socket) => {
     });
 });
 
-server.listen(4444, () => {
+server.listen(4444,'0.0.0.0', () => {
     console.log('Servidor está escuchando en el puerto', server.address().port);
 });
