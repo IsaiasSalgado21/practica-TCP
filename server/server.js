@@ -10,15 +10,23 @@ const clients = [];
 // Función para obtener IP local
 const getLocalIP = () => {
     const interfaces = os.networkInterfaces();
-    for (let iface in interfaces) {
-        for (let config of interfaces[iface]) {
-            if (config.family === 'IPv4' && !config.internal) {
-                return config.address;
+
+    for (let name in interfaces) {
+        // Evita interfaces virtuales o de loopback
+        if (name.toLowerCase().includes('virtual') || name.toLowerCase().includes('vmware') || name.toLowerCase().includes('loopback')) {
+            continue;
+        }
+
+        for (let iface of interfaces[name]) {
+            if (iface.family === 'IPv4' && !iface.internal) {
+                return iface.address;
             }
         }
     }
-    return 'localhost';
+
+    return 'localhost'; // En caso de no encontrar una IP válida
 };
+
 
 const server = net.createServer((socket) => {
     clients.push(socket);
