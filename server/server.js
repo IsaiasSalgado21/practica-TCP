@@ -3,12 +3,24 @@
 // IDS 8vo TV Sistemas Distribuidos DASC UABCS
 
 const net = require('node:net');
+const os = require('os');
 
 const clients = [];
 
-const server = net.createServer();
+// Función para obtener IP local
+const getLocalIP = () => {
+    const interfaces = os.networkInterfaces();
+    for (let iface in interfaces) {
+        for (let config of interfaces[iface]) {
+            if (config.family === 'IPv4' && !config.internal) {
+                return config.address;
+            }
+        }
+    }
+    return 'localhost';
+};
 
-server.on('connection', (socket) => {
+const server = net.createServer((socket) => {
     clients.push(socket);
     console.log('Nuevo cliente conectado');
 
@@ -17,7 +29,6 @@ server.on('connection', (socket) => {
             const mensaje = JSON.parse(data.toString().trim());
             console.log(`Mensaje de ${mensaje.nombre}: ${mensaje.texto}`);
 
-            // Enviar mensaje a los demás clientes
             clients.forEach((client) => {
                 if (client !== socket) {
                     client.write(`${mensaje.nombre} dice: ${mensaje.texto}\n`);
@@ -39,6 +50,9 @@ server.on('connection', (socket) => {
     });
 });
 
-server.listen(5050,'0.0.0.0', () => {
-    console.log('Servidor está escuchando en el puerto', server.address().port);
+// Escuchar en puerto 5050 en todas las interfaces
+server.listen(5050, '0.0.0.0', () => {
+    const ip = getLocalIP();
+    console.log(`Servidor escuchando en IP: ${ip} y puerto: 5050`);
+    console.log(`Comparte esta IP con tus compañeros para conectarse.`);
 });
